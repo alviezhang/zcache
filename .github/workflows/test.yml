@@ -1,5 +1,29 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+  
+
 jobs:
-  build:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v2
+    - uses: pre-commit/action@v2.0.3
+      with:
+        extra_args: flake8 --all-files
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -13,8 +37,31 @@ jobs:
     name: Python ${{ matrix.python-version }} Test
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v3
+
+      - uses: actions/setup-python@v3
+        name: Set up Python
         with:
           python-version: ${{ matrix.python-version }}
-      - run: poetry pytest --cov
+
+      - uses: snok/install-poetry@v1
+        name: Install Poetry
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - uses: actions/cache@v2
+        id: cached-poetry-dependencies
+        name: Load cached venv
+        with:
+          path: |
+            .venv
+            ~/.cache
+          key: poetry-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Run tests
+        run: poetry run pytest --cov
