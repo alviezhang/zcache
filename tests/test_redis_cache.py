@@ -1,19 +1,14 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import random
 
-import fakeredis
 from zcache import RedisCache
 from zcache.utils import kwargs_key_generator
 
 
-def test_cache_function():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_cache_function(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
     class A:
-
         def __init__(self):
             self.count = 0
 
@@ -23,11 +18,10 @@ def test_cache_function():
             return a + b + self.count
 
     class B:
-
         def __init__(self):
             self.count = 0
 
-        @cache.cached('tests.test_redis_cache.A.add|{0}-{1}')
+        @cache.cached("tests.test_redis_cache.A.add|{0}-{1}")
         def add_explicit(self, a, b):
             self.count += 1
             return a + b + self.count
@@ -46,13 +40,11 @@ def test_cache_function():
     assert b.add_explicit(5, 6) == 14
 
 
-def test_cache_kwargs():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_cache_kwargs(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
-    class A(object):
-
+    class A:
         def __init__(self):
             self.count = 0
 
@@ -61,8 +53,7 @@ def test_cache_kwargs():
             self.count += 1
             return a + b + self.count
 
-    class B(object):
-
+    class B:
         def __init__(self):
             self.count = 0
 
@@ -85,10 +76,9 @@ def test_cache_kwargs():
     assert b.add_explicit(a=5, b=6) == 14
 
 
-def test_cache_None():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_cache_None(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
     global i
     i = 0
@@ -107,10 +97,9 @@ def test_cache_None():
     assert i == 2
 
 
-def test_not_cache_None():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_not_cache_None(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
     global i
     i = 0
@@ -129,12 +118,11 @@ def test_not_cache_None():
     assert i == 3
 
 
-def test_cache_classmethod():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_cache_classmethod(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
-    class AC(object):
+    class AC:
 
         count = 0
 
@@ -146,19 +134,18 @@ def test_cache_classmethod():
         @cache.cached()
         @classmethod
         def plus(cls, a, b):
-            cls.__name__ = 'AD'
+            cls.__name__ = "AD"
             return a + b + random.randint(1, 100)
 
     assert AC.add(3, 4) == AC.add(3, 4) == AC().add(3, 4)
     assert AC.plus(3, 4) != AC.plus(3, 4)
 
 
-def test_cache_staticmethod():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_cache_staticmethod(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
-    class AS(object):
+    class AS:
 
         count = 0
 

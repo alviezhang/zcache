@@ -1,16 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import random
 
-import fakeredis
 from zcache import RedisCache
 from zcache.utils import kwargs_key_generator
 
 
-def test_tag_cache_function():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_tag_cache_function(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
     @cache.cached(tags=["add:{0}"])
     def add(a, b):
@@ -41,10 +37,9 @@ def test_tag_cache_function():
     assert add(6, 8) == add_result4
 
 
-def test_tag_cache_kwargs_function():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_tag_cache_kwargs_function(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
     @cache.cached(key_func=kwargs_key_generator, tags=["add:{a}"])
     def add(a, b):
@@ -75,12 +70,11 @@ def test_tag_cache_kwargs_function():
     assert add(a=6, b=8) == add_result4
 
 
-def test_cache_method():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_cache_method(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
-    class A(object):
+    class A:
         @cache.cached(tags=["add:{0}"])
         def add(self, a, b):
             return a + b + random.randint(1, 10000)
@@ -96,12 +90,11 @@ def test_cache_method():
     assert A().add(5, 6) == add_result1
 
 
-def test_multi_tag():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_multi_tag(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
-    class A(object):
+    class A:
         @cache.cached(tags=["a:{0}", "b:{1}", "c"])
         def add(self, a, b):
             return a + b + random.randint(1, 10000)
@@ -122,12 +115,11 @@ def test_multi_tag():
     assert add_result5 != A().add(2, 9)
 
 
-def test_multi_tag_kwargs():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_multi_tag_kwargs(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
-    class A(object):
+    class A:
         @cache.cached(key_func=kwargs_key_generator, tags=["a:{a}", "b:{b}", "c"])
         def add(self, a, b):
             return a + b + random.randint(1, 10000)
@@ -148,12 +140,11 @@ def test_multi_tag_kwargs():
     assert add_result5 != A().add(a=2, b=9)
 
 
-def test_function_tag():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_function_tag(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
-    @cache.cached(tags=[lambda *args, **kwargs: "add:{0}".format(args[0] + args[1])])
+    @cache.cached(tags=[lambda *args, **kwargs: f"add:{args[0] + args[1]}"])
     def add(a, b):
         return a + b + random.randint(1, 10000)
 
@@ -172,12 +163,14 @@ def test_function_tag():
     assert add(5, 8) == add_result3
 
 
-def test_function_tag_kwargs():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_function_tag_kwargs(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
-    @cache.cached(key_func=kwargs_key_generator, tags=[lambda *args, **kwargs: "add:{0}".format(kwargs['a'] + kwargs['b'])])
+    @cache.cached(
+        key_func=kwargs_key_generator,
+        tags=[lambda *args, **kwargs: "add:{}".format(kwargs["a"] + kwargs["b"])],
+    )
     def add(a, b):
         return a + b + random.randint(1, 10000)
 
@@ -196,10 +189,9 @@ def test_function_tag_kwargs():
     assert add(a=5, b=8) == add_result3
 
 
-def test_global_tag():
-    r = fakeredis.FakeStrictRedis()
-    r.flushall()
-    cache = RedisCache(conn=r)
+def test_global_tag(redis_client):
+    redis_client.flushall()
+    cache = RedisCache(conn=redis_client)
 
     @cache.cached(tags=["add:{0}"])
     def add(a, b):

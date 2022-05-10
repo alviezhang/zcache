@@ -2,13 +2,17 @@ repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
+    -   id: check-case-conflict
+    -   id: check-docstring-first
+    -   id: check-executables-have-shebangs
+    -   id: check-json
     -   id: check-yaml
+    -   id: check-symlinks
     -   id: debug-statements
-    -   id: double-quote-string-fixer
+    -   id: end-of-file-fixer
     -   id: name-tests-test
-    -   id: requirements-txt-fixer
+        args: ["--django"]
+    -   id: trailing-whitespace
 -   repo: https://github.com/asottile/setup-cfg-fmt
     rev: v1.20.1
     hooks:
@@ -18,22 +22,24 @@ repos:
     hooks:
     -   id: reorder-python-imports
         exclude: ^(pre_commit/resources/|testing/resources/python3_hooks_repo/)
-        args: [--py37-plus, --add-import, 'from __future__ import annotations']
--   repo: https://github.com/asottile/add-trailing-comma
-    rev: v2.2.3
-    hooks:
-    -   id: add-trailing-comma
-        args: [--py36-plus]
+        args: [--py37-plus]
 -   repo: https://github.com/asottile/pyupgrade
     rev: v2.32.0
     hooks:
     -   id: pyupgrade
         args: [--py37-plus]
--   repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v1.6.0
-    hooks:
-    -   id: autopep8
+
 -   repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: "4.0.1"
     hooks:
     -   id: flake8
+        args:
+            - "--max-line-length=119"
+
+- repo: https://github.com/psf/black
+  rev: "22.3.0"
+  hooks:
+    - id: black
+      args: # arguments to configure black
+        - --line-length=119
+        - --target-version=py37

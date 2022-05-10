@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import time
 import random
+import time
 
 #: Epoch for simpleflake timestamps, starts at the year 2000
 SIMPLEFLAKE_EPOCH = 946702800
@@ -9,7 +7,6 @@ SIMPLEFLAKE_EPOCH = 946702800
 
 SIMPLEFLAKE_RANDOM_LENGTH = 16
 SIMPLEFLAKE_TIMESTAMP_SHIFT = 8
-
 
 
 def simpleflake(timestamp=None, random_bits=None, epoch=SIMPLEFLAKE_EPOCH):
@@ -26,7 +23,7 @@ def simpleflake(timestamp=None, random_bits=None, epoch=SIMPLEFLAKE_EPOCH):
     return flake
 
 
-class BaseConverter(object):
+class BaseConverter:
     """
     Convert numbers from base 10 integers to base X strings and back again.
 
@@ -38,6 +35,7 @@ class BaseConverter(object):
     >>> base20.to_decimal('31e')
     1234
     """
+
     decimal_digits = "0123456789"
 
     def __init__(self, digits):
@@ -51,7 +49,7 @@ class BaseConverter(object):
 
     def convert(number, fromdigits, todigits):
         # Based on http://code.activestate.com/recipes/111286/
-        if str(number)[0] == '-':
+        if str(number)[0] == "-":
             number = str(number)[1:]
             neg = 1
         else:
@@ -72,13 +70,14 @@ class BaseConverter(object):
                 res = todigits[digit] + res
                 x = int(x / len(todigits))
             if neg:
-                res = '-' + res
+                res = "-" + res
         return res
+
     convert = staticmethod(convert)
 
 
 base62 = BaseConverter(
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz'
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz",
 )
 
 

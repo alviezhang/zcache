@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import six
 
 from .shortid import short_id
@@ -7,33 +5,27 @@ from .shortid import short_id
 
 def key_for_fn(namespace, fn):
     classname = None
-    if six.PY2:
-        if hasattr(fn, 'im_class'):
-            classname = fn.im_class.__name__
-            if classname == 'type':
-                classname = fn.im_self.__name__
-    else:
-        if hasattr(fn, '__self__'):
-            classname = fn.__self__.__class__.__name__
-            if classname == 'type':
-                classname = fn.__self__.__name__
+    if hasattr(fn, "__self__"):
+        classname = fn.__self__.__class__.__name__
+        if classname == "type":
+            classname = fn.__self__.__name__
     if classname:
-        key = "{0}.{1}.{2}".format(fn.__module__, classname, fn.__name__)
+        key = f"{fn.__module__}.{classname}.{fn.__name__}"
     else:
-        key = "{0}.{1}".format(fn.__module__, fn.__name__)
+        key = f"{fn.__module__}.{fn.__name__}"
     if namespace is None:
         return key
     else:
-        return '{0}:{1}'.format(namespace, key)
+        return f"{namespace}:{key}"
 
 
 def arguments_key_generator(namespace, fn, *args, **kwargs):
     key = key_for_fn(namespace, fn)
     if kwargs:
         raise ValueError(
-            "tcache's default key_func"
-            "function does not accept keyword arguments.")
-    args = [six.ensure_str(arg) if isinstance(arg, six.string_types) else arg for arg in args ]
+            "tcache's default key_func" "function does not accept keyword arguments.",
+        )
+    args = [six.ensure_str(arg) if isinstance(arg, str) else arg for arg in args]
     return key + "|" + "-".join(map(str, args))
 
 
@@ -41,9 +33,10 @@ def kwargs_key_generator(namespace, fn, *args, **kwargs):
     key = key_for_fn(namespace, fn)
     if args:
         raise ValueError(
-            "kwargs key generator does not accept positional arguments")
+            "kwargs key generator does not accept positional arguments",
+        )
 
-    return key + "|" + ','.join(map(str, sorted(kwargs.items(), key=lambda x: x[0])))
+    return key + "|" + ",".join(map(str, sorted(kwargs.items(), key=lambda x: x[0])))
 
 
 def arguments_batch_keys_generator(namespace, fn, *args):
@@ -70,16 +63,17 @@ def tag_key_generator(backend, prefix, tag_prefix, tags, timeout, *args, **kwarg
     return prefix + "|" + "-".join(map(str, dst_keys))
 
 
-class NoValue(object):
+class NoValue:
     """Describe a missing cache value.
 
     The :attr:`.NO_VALUE` module global
     should be used.
     """
+
     __slots__ = tuple()
 
     def __repr__(self):
-        return 'NoValue'
+        return "NoValue"
 
 
 NO_VALUE = NoValue()

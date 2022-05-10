@@ -1,15 +1,22 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import functools
 import types
 
-from .utils import tag_key_generator, NO_VALUE
+from .utils import NO_VALUE
+from .utils import tag_key_generator
 
 
-class Cached(object):
-
-    def __init__(self, func, backend, key_func, timeout,
-                 namespace, tags, should_cache_fn, tag_prefix):
+class Cached:
+    def __init__(
+        self,
+        func,
+        backend,
+        key_func,
+        timeout,
+        namespace,
+        tags,
+        should_cache_fn,
+        tag_prefix,
+    ):
         self._func = func
         self._backend = backend
         self._key_func = key_func
@@ -37,8 +44,15 @@ class Cached(object):
     def __call__(self, *args, **kwargs):
         cache_key = self._key_func(self._namespace, self._func, *args, **kwargs)
         if self._tags:
-            cache_key = tag_key_generator(self._backend, cache_key, self._tag_prefix,
-                                          self._tags, self._timeout, *args, **kwargs)
+            cache_key = tag_key_generator(
+                self._backend,
+                cache_key,
+                self._tag_prefix,
+                self._tags,
+                self._timeout,
+                *args,
+                **kwargs,
+            )
         result = self._backend.get(cache_key)
         if result is NO_VALUE:
             result = self._func(*args, **kwargs)
@@ -49,8 +63,15 @@ class Cached(object):
     def invalidate(self, *args, **kwargs):
         cache_key = self._key_func(self._namespace, self._func, *args, **kwargs)
         if self._tags:
-            cache_key = tag_key_generator(self._backend, cache_key, self._tag_prefix,
-                                          self._tags, self._timeout, *args, **kwargs)
+            cache_key = tag_key_generator(
+                self._backend,
+                cache_key,
+                self._tag_prefix,
+                self._tags,
+                self._timeout,
+                *args,
+                **kwargs,
+            )
         self._backend.delete(cache_key)
 
     def invalidate_tag(self, tag):

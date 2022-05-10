@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 批量缓存接口
 """
@@ -9,10 +7,15 @@ import types
 from .utils import NO_VALUE
 
 
-class Batch(object):
-
-    def __init__(self, func, backend, keys_func, timeout,
-                 namespace):
+class Batch:
+    def __init__(
+        self,
+        func,
+        backend,
+        keys_func,
+        timeout,
+        namespace,
+    ):
         self._func = func
         self._backend = backend
         self._keys_func = keys_func
@@ -48,7 +51,7 @@ class Batch(object):
                 miss_args.append(arg)
         if miss_args:
             miss_mapping = dict(zip(miss_args, self._func(*[arg for arg in miss_args])))
-            miss_cache_mapping = dict((key_lookup[arg], v) for (arg, v) in miss_mapping.items())
+            miss_cache_mapping = {key_lookup[arg]: v for (arg, v) in miss_mapping.items()}
             self._backend.mset(miss_cache_mapping, self._timeout)
             mapping.update(miss_mapping)
         return [mapping[arg] for arg in args]

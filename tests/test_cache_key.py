@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import random
-from zcache.utils import (arguments_key_generator, kwargs_key_generator,
-                         arguments_batch_keys_generator)
+
+from zcache.utils import arguments_batch_keys_generator
+from zcache.utils import arguments_key_generator
+from zcache.utils import kwargs_key_generator
 
 
 def add(a, b):
@@ -17,7 +17,7 @@ class A:
 def test_function_key():
     key = arguments_key_generator("prefix", add, 5, 6)
     assert key == "prefix:tests.test_cache_key.add|5-6"
-    key = arguments_key_generator("prefix", add, 5, u"测试")
+    key = arguments_key_generator("prefix", add, 5, "测试")
     assert key == "prefix:tests.test_cache_key.add|5-测试"
     key = arguments_key_generator(None, A().plus, 5, 6)
     assert key == "tests.test_cache_key.A.plus|5-6"
@@ -32,4 +32,4 @@ def test_kwargs_key():
 
 def test_batch_key():
     keys = arguments_batch_keys_generator("prefix", add, 5, 6)
-    assert keys == ['prefix:tests.test_cache_key.add|5', 'prefix:tests.test_cache_key.add|6']
+    assert keys == ["prefix:tests.test_cache_key.add|5", "prefix:tests.test_cache_key.add|6"]

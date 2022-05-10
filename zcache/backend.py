@@ -1,15 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""
-Zcache
-"""
-from functools import wraps
-
-from .utils import NO_VALUE
-from .shortid import short_id
 from .serializer import Serializer
+from .utils import NO_VALUE
 
-class BaseBackend(object):
+
+class BaseBackend:
     """
     Based cache implemention
     """

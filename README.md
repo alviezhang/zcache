@@ -1,10 +1,10 @@
-# Zcache
+# ZCache
 
 <!-- [![Pypi Status](https://img.shields.io/pypi/v/zcache.svg)](https://pypi.python.org/pypi/zcache) -->
 
 > This project is a community version of [Tache](https://github.com/zhihu/tache).
 
-Zcache is a caching framework for Python. It is designed with the following goals in mind:
+ZCache is a caching framework for Python. It is designed with the following goals in mind:
 
 * Support for Python 3.7+
 * Support for caching common functions/instance methods/class methods/static methods
@@ -64,10 +64,10 @@ are all invalidated.
 def add(a, b):
     return a + b + random.randint(1,100)
 
-result1 = add(5, 6) 
+result1 = add(5, 6)
 result2 = add(5, 7)
 add.invalidate_tag("a:5")
-assert result1 != add(5, 6) 
+assert result1 != add(5, 6)
 assert result2 != add(5, 7)
 ```
 
@@ -107,7 +107,7 @@ get_comments.invalidate(3,4,5) # invalidate 3,4,5
 
 ### Explicitly Specify Keys
 
-Zcache allows you to explicitly specify rules for cache keys, so that the generated keys will remain unchanged regardless of code refactoring.
+ZCache allows you to explicitly specify rules for cache keys, so that the generated keys will remain unchanged regardless of code refactoring.
 
 ```python
 class B:

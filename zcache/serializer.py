@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
 """
 提供主要用于数据交换的序列化处理机制。
 """
-
-__all__ = ['Serializer']
+__all__ = ["Serializer"]
 
 import datetime
 import decimal
@@ -15,9 +12,10 @@ try:
     import cPickle as pickle
 except ImportError:
     import pickle
+
     logging.warning("can't import cpickle, use pickle instead")
 
-from sqlalchemy.engine import ResultProxy, RowProxy
+from sqlalchemy.engine import ResultProxy, Row
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from ._compat import basestring
@@ -42,13 +40,13 @@ class ObjectDict(dict):
         del self[name]
 
 
-class Serializer(object):
+class Serializer:
     """序列化处理器"""
 
     #: 支持的序列化格式。
-    SUPPORTED_FORMATS = ['YAML', 'JSON', 'PICKLE']
+    SUPPORTED_FORMATS = ["YAML", "JSON", "PICKLE"]
 
-    def __init__(self, format='JSON'):
+    def __init__(self, format="JSON"):
         """创建一个序列化处理器。
 
         :param str format: 指定该序列化处理器采用的格式，如 YAML、JSON 等。
@@ -57,7 +55,7 @@ class Serializer(object):
         if format in self.SUPPORTED_FORMATS:
             self.format = format
         else:
-            raise ValueError('unsupported serializaion format')
+            raise ValueError("unsupported serializaion format")
 
     def load(self, stream):
         """从参数 ``stream`` 中获取数据。
@@ -66,7 +64,7 @@ class Serializer(object):
         :type stream: mixed
         :rtype: str|unicode|file
         """
-        func_name = ''.join(['_from_', self.format.lower()])
+        func_name = "".join(["_from_", self.format.lower()])
         func = globals()[func_name]
         return func(stream)
 
@@ -77,7 +75,7 @@ class Serializer(object):
         :type data: mixed
         :rtype: str|unicode
         """
-        func_name = ''.join(['_to_', self.format.lower()])
+        func_name = "".join(["_to_", self.format.lower()])
         func = globals()[func_name]
         return func(data)
 
@@ -101,6 +99,7 @@ class Serializer(object):
 def _from_yaml(stream):
     """Load data form a YAML file or string."""
     from yaml import load
+
     try:
         from yaml import CLoader as Loader
     except ImportError:
@@ -112,6 +111,7 @@ def _from_yaml(stream):
 def _to_yaml(data):
     """Dump data into a YAML string."""
     from yaml import dump
+
     try:
         from yaml import CDumper as Dumper
     except ImportError:
@@ -149,7 +149,7 @@ def _to_json(data):
 
 class AwareJSONEncoder(json.JSONEncoder):
     """JSONEncoder subclass that knows how to encode date/time and
-    decimal types, and also ResultProxy/RowProxy of SQLAlchemy.
+    decimal types, and also ResultProxy/Row of SQLAlchemy.
     """
 
     DATE_FORMAT = "%Y-%m-%d"
@@ -159,7 +159,7 @@ class AwareJSONEncoder(json.JSONEncoder):
         if isinstance(o, datetime.datetime):
             # d = datetime_safe.new_datetime(o)
             # return d.strftime("%s %s" % (self.DATE_FORMAT, self.TIME_FORMAT))
-            return o.strftime("%s %s" % (self.DATE_FORMAT, self.TIME_FORMAT))
+            return o.strftime(f"{self.DATE_FORMAT} {self.TIME_FORMAT}")
         elif isinstance(o, datetime.date):
             # d = datetime_safe.new_date(o)
             return o.strftime(self.DATE_FORMAT)
@@ -169,21 +169,21 @@ class AwareJSONEncoder(json.JSONEncoder):
             return str(o)
         elif isinstance(o, ResultProxy):
             return list(o)
-        elif isinstance(o, RowProxy):
+        elif isinstance(o, Row):
             return dict(o)
         elif isinstance(o.__class__, DeclarativeMeta):
             fields = {}
             instance_dict = o.__dict__
             for field in instance_dict:
-                if not field.startswith('_'):
+                if not field.startswith("_"):
                     fields[field] = instance_dict[field]
             return fields
         else:
-            return super(AwareJSONEncoder, self).default(o)
+            return super().default(o)
 
 
 def _encode_object(o):
-    """Encode date/time and decimal types, and also ResultProxy/RowProxy
+    """Encode date/time and decimal types, and also ResultProxy/Row
     of SQLAlchemy.
     """
 
@@ -192,10 +192,10 @@ def _encode_object(o):
 
     if type(o) in (list, tuple):
         return [_encode_object(i) for i in o]
-    elif type(o) in (int, long, float, str, unicode, bool, dict, None):
+    elif type(o) in (int, float, str, bool, dict, None):
         return o
     elif isinstance(o, datetime.datetime):
-        return o.strftime("%s %s" % (DATE_FORMAT, TIME_FORMAT))
+        return o.strftime(f"{DATE_FORMAT} {TIME_FORMAT}")
     elif isinstance(o, datetime.date):
         return o.strftime(DATE_FORMAT)
     elif isinstance(o, datetime.time):
@@ -204,13 +204,13 @@ def _encode_object(o):
         return str(o)
     elif isinstance(o, ResultProxy):
         return _encode_object(list(o))
-    elif isinstance(o, RowProxy):
+    elif isinstance(o, Row):
         return dict(o)
     elif isinstance(o.__class__, DeclarativeMeta):
         fields = {}
         instance_dict = o.__dict__
         for field in instance_dict:
-            if not field.startswith('_'):
+            if not field.startswith("_"):
                 fields[field] = instance_dict[field]
         return fields
     else:

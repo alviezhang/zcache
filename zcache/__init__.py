@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import functools
+
 from .backend import RedisBackend
-from .zcache import Zcache
+from .zcache import ZCache
 
-RedisCache = functools.partial(Zcache, RedisBackend)
+RedisCache = functools.partial(ZCache, RedisBackend)
 
-__all__ = ['RedisCache']
+__all__ = ["RedisCache", "ZCache"]
