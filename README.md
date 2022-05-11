@@ -4,6 +4,8 @@
 
 > This project is a community version of [Tache](https://github.com/zhihu/tache).
 
+## **THIS PROJECT IS STILL WIP, PLEASE DON'T USE**
+
 ZCache is a caching framework for Python. It is designed with the following goals in mind:
 
 * Support for Python 3.7+
